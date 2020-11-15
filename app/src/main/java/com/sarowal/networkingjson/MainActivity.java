@@ -7,7 +7,9 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -21,28 +23,26 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView tvModel, tvPrice;
-    ImageView imageView;
+    ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imageView = findViewById(R.id.ivImage);
-        tvModel = findViewById(R.id.tvModel);
-        tvPrice = findViewById(R.id.tvPrice);
-        String api = "https://jsonkeeper.com/b/HXGT";
-        //String api = "https://androidtutorialpoint.com/api/MobileJSONArray.json";
+        listView = findViewById(R.id.list_item);
+        String api = "https://jsonkeeper.com/b/CF6J";
         new mobileTask().execute(api);  //Creating asyncTask to get data from web/api
     }
 
     //Creating asyncTask to get data from web/api
-    public class mobileTask extends AsyncTask<String,Void,String>{
+    public class mobileTask extends AsyncTask<String,Void,List<MobileInfo>>{
         @Override
-        protected String doInBackground(String... strings) {
+        protected List<MobileInfo> doInBackground(String... strings) {
             String s = strings[0];
             try {
                 URL url = new URL(s);
@@ -56,50 +56,34 @@ public class MainActivity extends AppCompatActivity {
                 if((line=bufferedReader.readLine())!= null){
                     stringBuilder.append(line);
                 }
-                return stringBuilder.toString();
+                String JSONFile =  stringBuilder.toString(); //stores all data to JSONFile
+                JSONArray jsonArray = new JSONArray(JSONFile);
+
+                List<MobileInfo> mobileInfoList = new ArrayList<>();
+
+                for(int i=0; i<jsonArray.length(); i++){
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    MobileInfo mobileInfo = new MobileInfo();
+                    mobileInfo.setModel(jsonObject.getString("model"));
+                    mobileInfo.setPrice(jsonObject.getString("price")); //use int as String other app crashes!
+                    mobileInfo.setImage(jsonObject.getString("image"));
+                    mobileInfoList.add(mobileInfo);
+                }
+                return mobileInfoList; //return list of data to onPostExecute
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                JSONArray jsonArray = new JSONArray(s);
-                JSONObject jsonObject = jsonArray.getJSONObject(5);
-                tvModel.setText("Model: "+jsonObject.getString("model"));
-                tvPrice.setText("Price: $"+jsonObject.getString("price"));
-                //Creating another asyncTask to get image
-                new imageLoaderTask().execute(jsonObject.getString("image"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            super.onPostExecute(s);
-        }
-    }
-
-    //Creating another asyncTask to get image
-    public class imageLoaderTask extends AsyncTask<String,Void, Bitmap>{
-        @Override
-        protected Bitmap doInBackground(String... strings) {
-            try {
-                URL url = new URL(strings[0]);
-                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.connect();
-                InputStream inputStream = httpURLConnection.getInputStream();
-                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                return bitmap;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             return null;
         }
         @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            imageView.setImageBitmap(bitmap);
-            super.onPostExecute(bitmap);
+        protected void onPostExecute(List<MobileInfo> s) {
+            super.onPostExecute(s);
+            CustomAdapter customAdapter = new CustomAdapter(getApplicationContext(),R.layout.list,s);
+            listView.setAdapter(customAdapter);
         }
     }
 }

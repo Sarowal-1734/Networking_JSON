@@ -7,25 +7,10 @@
     android:padding="16dp"
     android:orientation="vertical"
     tools:context=".MainActivity">
-    <ImageView
-        android:id="@+id/ivImage"
+    <ListView
+        android:id="@+id/list_item"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginBottom="5dp"/>
-    <TextView
-        android:id="@+id/tvModel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:layout_marginBottom="5dp"
-        android:text="Model:"/>
-    <TextView
-        android:id="@+id/tvPrice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:layout_marginBottom="5dp"
-        android:text="Price: $0"/>
+        android:layout_height="match_parent"
+        android:divider="@color/black"
+        android:dividerHeight="1dp"/>
 </LinearLayout>
