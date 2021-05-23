@@ -1,13 +1,19 @@
 package com.sarowal.networkingjson;
 
-public class MobileInfo {
+import android.graphics.Bitmap;
+
+public class MobileModel {
     private String model;
     private String price;
-    private String image;
+    private Bitmap image;
 
-    public String getImage() { return image; }
+    public Bitmap getImageBitmap() {
+        return image;
+    }
 
-    public void setImage(String image) { this.image = image; }
+    public void setImage(Bitmap image) {
+        this.image = image;
+    }
 
     public String getModel() {
         return model;
